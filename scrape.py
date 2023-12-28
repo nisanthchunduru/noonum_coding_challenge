@@ -15,6 +15,7 @@ class Scraper:
 
   def scrape(self):
     processed_urls_file = open('processed_urls.csv', 'w')
+    bad_urls_file = open('bad_urls.csv', 'w')
 
     while not self.urls.empty():
       url = self.urls.get()
@@ -27,9 +28,14 @@ class Scraper:
 
         self.process_page(response.text, url_domain, url_path)
 
-        processed_urls_file.write(f"{url}, {self._formatted_current_time()}\n")
+        line = f"{url}, {self._formatted_current_time()}\n"
+        processed_urls_file.write(line)
+      else:
+        line = f"{url}, {self._formatted_current_time()}, {response.status_code}\n"
+        bad_urls_file.write(line)
 
     processed_urls_file.close()
+    bad_urls_file.close()
 
   def _formatted_current_time(self):
     return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
