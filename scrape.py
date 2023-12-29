@@ -6,23 +6,22 @@ from collections import defaultdict
 import time
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
+from scraper.plugins.bad_urls_csv import BadUrlsCsv
 from scraper.plugins.successful_scrape_handler import SuccessfulScrapeHandler
 from scraper.plugins.unsuccessful_scrape_handler import UnsuccessfulScrapeHandler
 
 class Scraper:
-  PARALLELISM = 2
-
   def __init__(self, process_page):
     self.process_page = process_page
 
-  def scrape(self):
+  def scrape(self, parallelism=2):
     self._load_urls()
-    self.plugins = [SuccessfulScrapeHandler(self), UnsuccessfulScrapeHandler(self)]
-    executor = ThreadPoolExecutor(max_workers=self.PARALLELISM)
+    self.plugins = [BadUrlsCsv(self), SuccessfulScrapeHandler(self), UnsuccessfulScrapeHandler(self)]
+    executor = ThreadPoolExecutor(max_workers=parallelism)
     self.workers = {}
 
     while True:
-      if len(self.workers) >= self.PARALLELISM:
+      if len(self.workers) >= parallelism:
         # Wait for a worker to become done
         wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
         next
@@ -35,7 +34,7 @@ class Scraper:
           wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
           continue
       else:
-          if len(self.workers) == self.PARALLELISM:
+          if len(self.workers) == parallelism:
             # Wait for atleast one worker to be done
             wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
 
@@ -84,7 +83,8 @@ class Scraper:
     del self.workers[url]
 
     for plugin in self.plugins:
-      plugin.handle_response(url, response)
+      if hasattr(plugin, 'handle_response'):
+        plugin.handle_response(url, response)
 
   def _sleep_until(self, target_time):
     current_time = datetime.now()

@@ -1,7 +1,8 @@
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
 from collections import defaultdict
-from scraper.utils import formatted_current_time
+
+from scraper.plugins.bad_urls_csv import BadUrlsCsv
 
 class UnsuccessfulScrapeHandler:
   DOMAIN_502_LIMIT = 2
@@ -9,7 +10,6 @@ class UnsuccessfulScrapeHandler:
 
   def __init__(self, scraper):
     self.scraper = scraper
-    self.bad_urls_file = open('bad_urls.csv', 'w')
     self.domains_last_502_timestamps = {}
     self.domains_502_counts = defaultdict(int)
 
@@ -60,5 +60,8 @@ class UnsuccessfulScrapeHandler:
     return True
 
   def _add_url_to_bad_urls_file(self, url, reason):
-    line = f"{url}, {formatted_current_time()}, {reason}\n"
-    self.bad_urls_file.write(line)
+    bad_urls_csv_plugin = None
+    for plugin in self.scraper.plugins:
+      if isinstance(plugin, BadUrlsCsv):
+        bad_urls_csv_plugin = plugin
+    bad_urls_csv_plugin.add_url(url, reason)
