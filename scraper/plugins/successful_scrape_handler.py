@@ -16,6 +16,7 @@ class SuccessfulScrapeHandler:
     url_path = parsed_url.path
 
     try:
+      # TODO: Process page in a thread
       self.scraper.process_page(response.text, url_domain, url_path)
     except Exception as e:
       exception_name = e.__class__.__name__
