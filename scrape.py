@@ -32,7 +32,6 @@ class Scraper:
     while True:
       if len(self.workers) >= self.PARALLELISM:
         # Wait for a worker to become done
-        # as_completed(self.workers.values())
         wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
         next
 
@@ -41,13 +40,11 @@ class Scraper:
           break
         else:
           # Wait for atleast on worker to be done
-          # as_completed(self.workers.values())
           wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
           continue
       else:
           if len(self.workers) == self.PARALLELISM:
             # Wait for atleast one worker to be done
-            # as_completed(self.workers.values())
             wait(self.workers.values(), None, return_when=FIRST_COMPLETED)
 
       priority, url = self.urls.get()
