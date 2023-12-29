@@ -26,12 +26,20 @@ class Scraper:
         url_domain = parsed_url.netloc
         url_path = parsed_url.path
 
-        self.process_page(response.text, url_domain, url_path)
+        try:
+          self.process_page(response.text, url_domain, url_path)
+        except Exception as e:
+          exception_name = e.__class__.__name__
+          reason = exception_name
+          line = f"{url}, {self._formatted_current_time()}, {reason}\n"
+          bad_urls_file.write(line)
+          next
 
         line = f"{url}, {self._formatted_current_time()}\n"
         processed_urls_file.write(line)
       else:
-        line = f"{url}, {self._formatted_current_time()}, {response.status_code}\n"
+        reason = response.status_code
+        line = f"{url}, {self._formatted_current_time()}, {reason}\n"
         bad_urls_file.write(line)
 
     processed_urls_file.close()
