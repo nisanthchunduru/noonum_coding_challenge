@@ -90,6 +90,9 @@ class Scraper:
     url_path = parsed_url.path
 
     if response.status_code == 200:
+      if url_domain in self.five02_domains:
+        del self.five02_domains[url_domain]
+
       try:
         self.process_page(response.text, url_domain, url_path)
       except Exception as e:
