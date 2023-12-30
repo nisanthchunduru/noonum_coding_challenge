@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 from datetime import datetime, timedelta
 from collections import defaultdict
 
-from scraper.plugins.bad_urls_csv import BadUrlsCsv
+from scraper.plugins.bad_urls_csv_generator import BadUrlsCsvGenerator
 
 class UnsuccessfulScrapeHandler:
   DOMAIN_502_LIMIT = 2
@@ -24,7 +24,7 @@ class UnsuccessfulScrapeHandler:
     domain_502_count = self.domains_502_counts[url_domain]
     if domain_502_count >= self.DOMAIN_502_LIMIT:
       reason = "domain_502_limit_exceeded"
-      self._add_url_to_bad_urls_file(url, reason)
+      self._add_url_to_bad_urls_csv(url, reason)
       return False
 
     retry_at = self.domains_last_502_timestamps[url_domain] + timedelta(seconds=self.RETRY_DELAY_AFTER_502)
@@ -40,7 +40,7 @@ class UnsuccessfulScrapeHandler:
 
     if not response.status_code == 502:
       reason = response.status_code
-      self._add_url_to_bad_urls_file(url, reason)
+      self._add_url_to_bad_urls_csv(url, reason)
       return True
 
     parsed_url = urlparse(url)
@@ -50,7 +50,7 @@ class UnsuccessfulScrapeHandler:
 
     if self.domains_502_counts[url_domain] >= self.DOMAIN_502_LIMIT:
       reason = 502
-      self._add_url_to_bad_urls_file(url, reason)
+      self._add_url_to_bad_urls_csv(url, reason)
     else:
       current_time = datetime.now()
       self.domains_last_502_timestamps[url_domain] = current_time
@@ -59,9 +59,5 @@ class UnsuccessfulScrapeHandler:
 
     return True
 
-  def _add_url_to_bad_urls_file(self, url, reason):
-    bad_urls_csv_plugin = None
-    for plugin in self.scraper.plugins:
-      if isinstance(plugin, BadUrlsCsv):
-        bad_urls_csv_plugin = plugin
-    bad_urls_csv_plugin.add_url(url, reason)
+  def _add_url_to_bad_urls_csv(self, url, reason):
+    self.scraper.dispatch_command("add_url_to_bad_urls_csv", url, reason)

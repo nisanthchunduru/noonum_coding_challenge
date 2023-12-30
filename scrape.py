@@ -6,7 +6,7 @@ from collections import defaultdict
 import time
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
-from scraper.plugins.bad_urls_csv import BadUrlsCsv
+from scraper.plugins.bad_urls_csv_generator import BadUrlsCsvGenerator
 from scraper.plugins.successful_scrape_handler import SuccessfulScrapeHandler
 from scraper.plugins.unsuccessful_scrape_handler import UnsuccessfulScrapeHandler
 
@@ -16,7 +16,7 @@ class Scraper:
 
   def scrape(self, parallelism=2):
     self._load_urls()
-    self.plugins = [BadUrlsCsv(self), SuccessfulScrapeHandler(self), UnsuccessfulScrapeHandler(self)]
+    self.plugins = [BadUrlsCsvGenerator(self), SuccessfulScrapeHandler(self), UnsuccessfulScrapeHandler(self)]
     executor = ThreadPoolExecutor(max_workers=parallelism)
     self.workers = {}
 
@@ -65,6 +65,11 @@ class Scraper:
 
   def scrape_url_at(self, url, scrape_at):
     self.add_url(url, scrape_at=scrape_at)
+
+  def dispatch_command(self, command, *args):
+    for plugin in self.plugins:
+      if hasattr(plugin, 'handle_command'):
+        plugin.handle_command(command, *args)
 
   def _load_urls(self):
     self.urls = PriorityQueue()
