@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 
 from scraper.utils import formatted_current_time
-from scraper.plugins.bad_urls_csv_generator import BadUrlsCsvGenerator
 
 class SuccessfulScrapeHandler:
   def __init__(self, scraper):
@@ -20,15 +19,18 @@ class SuccessfulScrapeHandler:
       # TODO: Process page in a thread
       self.scraper.process_page(response.text, url_domain, url_path)
     except Exception as e:
-      exception_name = e.__class__.__name__
-      reason = exception_name
-      self._add_url_to_bad_urls_csv(url, reason)
+      reason = e
+      self._dispatch_scrape_failed_event(url, reason)
       return
 
     self._add_url_to_processed_urls_file(url)
 
-  def _add_url_to_bad_urls_csv(self, url, reason):
-    self.scraper.dispatch_command("add_url_to_bad_urls_csv", url, reason)
+  def _dispatch_scrape_failed_event(self, url, reason):
+    context = {
+      "url": url,
+      "reason": reason
+    }
+    self.scraper.dispatch_event("scrape_failed", context)
 
   def _add_url_to_processed_urls_file(self, url):
     line = f"{url}, {formatted_current_time()}\n"
