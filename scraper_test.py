@@ -19,5 +19,3 @@ def test_robot_warning_handling():
 https://mock.codes/200?hello=world, 2000-01-01T00:00:00, skipped - robot_warning_detected
 """
 		assert actual_bad_urls_csv == expected_bad_urls_csv
-
-test_robot_warning_handling()
