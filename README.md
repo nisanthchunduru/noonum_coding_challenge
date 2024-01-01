@@ -12,5 +12,4 @@ python scrape.py
 
 ## Todos
 
-- Add more tests!
 - Add logs

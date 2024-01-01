@@ -2,6 +2,23 @@ from scraper import Scraper
 from freezegun import freeze_time
 
 @freeze_time("2000-01-01")
+def test_scraping():
+	def process_page(*args):
+		pass
+
+	urls = [
+		"https://mock.codes/200",
+	]
+	scraper = Scraper(process_page)
+	scraper.scrape(urls=urls, parallelism=1)
+
+	with open("processed_urls.csv") as file:
+		actual_processed_urls_csv = file.read()
+		expected_urls_csv = """https://mock.codes/200, 2000-01-01T00:00:00
+"""
+		assert actual_processed_urls_csv == expected_urls_csv
+
+@freeze_time("2000-01-01")
 def test_page_processing_exception_handling():
 	def process_page(*args):
 		raise Exception("Oops, something's went wrong")
