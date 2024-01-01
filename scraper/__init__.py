@@ -6,14 +6,16 @@ from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
 from scraper.plugins.successful_scrape_handler import SuccessfulScrapeHandler
 from scraper.plugins.unsuccessful_scrape_handler import UnsuccessfulScrapeHandler
-from scraper.plugins.blacklist import Blacklist
+from scraper.plugins.robot_warning_handler import RobotWarningHandler
 from scraper.plugins.bad_urls_csv_generator import BadUrlsCsvGenerator
+from scraper.plugins.page_processing_exception_handler import PageProcessingExceptionHandler
 
 class Scraper:
   DEFAULT_PLUGINS = [
     SuccessfulScrapeHandler,
     UnsuccessfulScrapeHandler,
-    Blacklist,
+    RobotWarningHandler,
+    PageProcessingExceptionHandler,
     BadUrlsCsvGenerator
   ]
 

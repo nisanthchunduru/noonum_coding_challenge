@@ -1,18 +1,18 @@
 from urllib.parse import urlparse
 
-class Blacklist:
+class RobotWarningHandler:
   def __init__(self, scraper):
     self.scraper = scraper
-    self.blacklisted_domains = {}
+    self.affected_domains = {}
 
   def handle_url(self, url):
     parsed_url = urlparse(url)
     url_domain = parsed_url.netloc
 
-    if url_domain in self.blacklisted_domains:
+    if url_domain in self.affected_domains:
       context = {
         "url": url,
-        "reason": self.blacklisted_domains[url_domain]
+        "reason": self.affected_domains[url_domain]
       }
       self.scraper.dispatch_event("url_skipped", context)
       return False
@@ -26,4 +26,4 @@ class Blacklist:
         url = context["url"]
         parsed_url = urlparse(url)
         url_domain = parsed_url.netloc
-        self.blacklisted_domains[url_domain] = "robot_warning_detected"
+        self.affected_domains[url_domain] = "ROBOT_WARNING_DETECTED"

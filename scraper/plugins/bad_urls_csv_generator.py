@@ -18,6 +18,6 @@ class BadUrlsCsvGenerator:
     elif event == "url_skipped":
       url = context["url"]
       reason = context["reason"]
-      line = f"{url}, {formatted_current_time()}, skipped - {reason}\n"
+      line = f"{url}, {formatted_current_time()}, Skipped ({reason})\n"
       self.bad_urls_csv_file.write(line)
       self.bad_urls_csv_file.flush()
