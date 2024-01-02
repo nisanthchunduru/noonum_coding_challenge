@@ -59,7 +59,7 @@ class Scraper:
       skip_url = False
       for plugin in self.plugins:
         if hasattr(plugin, 'handle_url'):
-            skip_url = not plugin.handle_url(url)
+            skip_url = skip_url or (not plugin.handle_url(url))
 
       if skip_url:
         continue
