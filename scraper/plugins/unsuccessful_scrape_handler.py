@@ -34,6 +34,11 @@ class UnsuccessfulScrapeHandler:
 
     return True
 
+  def handle_scrape_exception(self, url, exception):
+    reason = str(exception)
+    self._dispatch_scrape_failed_event(url, reason)
+    return True
+
   def handle_response(self, url, response):
     if response.status_code == 200:
       return True

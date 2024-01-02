@@ -12,12 +12,12 @@ class BadUrlsCsvGenerator:
       if isinstance(reason, Exception):
         e = reason
         reason = str(e)
-      line = f"{url}, {formatted_current_time()}, {reason}\n"
+      line = f"{url}; {formatted_current_time()}; {reason}\n"
       self.bad_urls_csv_file.write(line)
       self.bad_urls_csv_file.flush()
     elif event == "url_skipped":
       url = context["url"]
       reason = context["reason"]
-      line = f"{url}, {formatted_current_time()}, Skipped ({reason})\n"
+      line = f"{url}; {formatted_current_time()}; Skipped ({reason})\n"
       self.bad_urls_csv_file.write(line)
       self.bad_urls_csv_file.flush()

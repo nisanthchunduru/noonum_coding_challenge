@@ -99,17 +99,27 @@ class Scraper:
         self.add_url(url)
 
   def _get_url(self, url):
-    response = requests.get(url)
-    return (url, response)
+    try:
+      response = requests.get(url)
+      return (url, response)
+    except Exception as e:
+      return (url, e)
 
   def _handle_response(self, worker):
-    url, response = worker.result()
+    url, response_or_exception = worker.result()
 
-    del self.workers[url]
-
-    for plugin in self.plugins:
-      if hasattr(plugin, 'handle_response'):
-        plugin.handle_response(url, response)
+    if isinstance(response_or_exception, Exception):
+      exception = response_or_exception
+      del self.workers[url]
+      for plugin in self.plugins:
+        if hasattr(plugin, 'handle_scrape_exception'):
+          plugin.handle_scrape_exception(url, exception)
+    else:
+      response = response_or_exception
+      del self.workers[url]
+      for plugin in self.plugins:
+        if hasattr(plugin, 'handle_response'):
+          plugin.handle_response(url, response)
 
   def _sleep_until(self, target_time):
     current_time = datetime.now()

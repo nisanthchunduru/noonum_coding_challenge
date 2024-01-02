@@ -33,6 +33,6 @@ class SuccessfulScrapeHandler:
     self.scraper.dispatch_event("scrape_failed", context)
 
   def _add_url_to_processed_urls_file(self, url):
-    line = f"{url}, {formatted_current_time()}\n"
+    line = f"{url}; {formatted_current_time()}\n"
     self.processed_urls_file.write(line)
     self.processed_urls_file.flush()
